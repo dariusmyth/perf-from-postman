@@ -78,8 +78,14 @@ jobs:
 
       - name: Build Trend Report
         run: |
-          python -c "from analytics.trend_builder import build_trend, save_trend; save_trend(build_trend())"
-          python -c "from analytics.trend_html import generate_html; generate_html(build_trend())"
+          python - <<'PY'
+          from analytics.trend_builder import build_trend, save_trend
+          from analytics.trend_html import generate_html
+  
+          trend = build_trend()
+          save_trend(trend)
+          generate_html(trend)
+          PY
 
       - name: Commit Everything (include JTL & report)
         env:
