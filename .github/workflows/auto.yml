@@ -3,7 +3,7 @@ name: Full Performance Pipeline
 on:
   push:
     paths:
-      - "inputs/postman_collection.json"
+      - "inputs/RestfulBooker.postman_collection.json"
 
 jobs:
   run:
