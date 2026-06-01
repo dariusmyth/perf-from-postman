@@ -1,5 +1,5 @@
 defaults:
   users: 5
-  duration: 50
+  duration: 60
   think_time: 2
   sleep: 1
