@@ -15,7 +15,6 @@ scenarios:
     order: 1
     requests:
       - GetBookingIds
-      - getUser
   - name: Check created booking details
     description: Create Booking
     order: 1
