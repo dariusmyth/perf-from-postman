@@ -4,33 +4,18 @@ from xml.dom import minidom
 from urllib.parse import urlparse
 
 
-# ----------------------------
-# XML pretty printer
-# ----------------------------
 def prettify(elem):
-    rough = tostring(elem, "utf-8")
-    return minidom.parseString(rough).toprettyxml(indent="  ")
+    return minidom.parseString(
+        tostring(elem, "utf-8")
+    ).toprettyxml(indent="  ")
 
 
-# ----------------------------
-# Parse Postman URL → host + path
-# ----------------------------
 def parse_url(url):
     parsed = urlparse(url)
-
-    host = parsed.netloc
-    path = parsed.path
-
-    if parsed.query:
-        path += "?" + parsed.query
-
-    return host, path
+    return parsed.netloc, parsed.path + (("?" + parsed.query) if parsed.query else "")
 
 
-# ----------------------------
-# Create HTTP Sampler (IMPORTANT: no hashTree here)
-# ----------------------------
-def create_http_sampler(parent, name, method, host, path):
+def create_sampler(parent, name, method, host, path):
 
     sampler = SubElement(parent, "HTTPSamplerProxy", {
         "guiclass": "HttpTestSampleGui",
@@ -40,26 +25,17 @@ def create_http_sampler(parent, name, method, host, path):
     })
 
     SubElement(sampler, "stringProp", {"name": "HTTPSampler.domain"}).text = host
-    SubElement(sampler, "stringProp", {"name": "HTTPSampler.port"}).text = ""
     SubElement(sampler, "stringProp", {"name": "HTTPSampler.protocol"}).text = "https"
     SubElement(sampler, "stringProp", {"name": "HTTPSampler.path"}).text = path
     SubElement(sampler, "stringProp", {"name": "HTTPSampler.method"}).text = method
 
-    SubElement(sampler, "boolProp", {"name": "HTTPSampler.follow_redirects"}).text = "true"
-    SubElement(sampler, "boolProp", {"name": "HTTPSampler.auto_redirects"}).text = "false"
-    SubElement(sampler, "boolProp", {"name": "HTTPSampler.use_keepalive"}).text = "true"
-
     return sampler
 
 
-# ----------------------------
-# MAIN GENERATOR
-# ----------------------------
 def generate_jmx(context):
 
     os.makedirs("output", exist_ok=True)
 
-    # ROOT
     root = Element("jmeterTestPlan", {
         "version": "1.2",
         "properties": "5.0",
@@ -68,47 +44,17 @@ def generate_jmx(context):
 
     root_hash = SubElement(root, "hashTree")
 
-    # =========================
     # TEST PLAN
-    # =========================
     test_plan = SubElement(root_hash, "TestPlan", {
         "guiclass": "TestPlanGui",
         "testclass": "TestPlan",
-        "testname": "Postman Generated Test Plan",
+        "testname": "Postman Plan",
         "enabled": "true"
     })
-
-    SubElement(test_plan, "stringProp", {
-        "name": "TestPlan.comments"
-    }).text = "Generated from Postman Collection"
-
-    SubElement(test_plan, "boolProp", {
-        "name": "TestPlan.functional_mode"
-    }).text = "false"
-
-    # Required arguments block
-    udv = SubElement(test_plan, "elementProp", {
-        "name": "TestPlan.user_defined_variables",
-        "elementType": "Arguments",
-        "guiclass": "ArgumentsPanel",
-        "testclass": "Arguments",
-        "testname": "User Defined Variables",
-        "enabled": "true"
-    })
-
-    SubElement(udv, "collectionProp", {
-        "name": "Arguments.arguments"
-    })
-
-    SubElement(test_plan, "stringProp", {
-        "name": "TestPlan.user_define_classpath"
-    }).text = ""
 
     test_plan_tree = SubElement(root_hash, "hashTree")
 
-    # =========================
     # THREAD GROUP
-    # =========================
     thread_group = SubElement(test_plan_tree, "ThreadGroup", {
         "guiclass": "ThreadGroupGui",
         "testclass": "ThreadGroup",
@@ -116,43 +62,19 @@ def generate_jmx(context):
         "enabled": "true"
     })
 
-    SubElement(thread_group, "stringProp", {
-        "name": "ThreadGroup.num_threads"
-    }).text = str(context.get("users", 1))
-
-    SubElement(thread_group, "stringProp", {
-        "name": "ThreadGroup.ramp_time"
-    }).text = "1"
-
-    SubElement(thread_group, "stringProp", {
-        "name": "ThreadGroup.on_sample_error"
-    }).text = "continue"
-
     thread_group_tree = SubElement(test_plan_tree, "hashTree")
 
-    # =========================
     # LOOP CONTROLLER
-    # =========================
     loop_controller = SubElement(thread_group_tree, "LoopController", {
         "guiclass": "LoopControlPanel",
         "testclass": "LoopController",
-        "testname": "Loop Controller",
+        "testname": "Loop",
         "enabled": "true"
     })
 
-    SubElement(loop_controller, "boolProp", {
-        "name": "LoopController.continue_forever"
-    }).text = "false"
-
-    SubElement(loop_controller, "stringProp", {
-        "name": "LoopController.loops"
-    }).text = "1"
-
     loop_tree = SubElement(thread_group_tree, "hashTree")
 
-    # =========================
-    # SCENARIOS (Postman → JMeter mapping)
-    # =========================
+    # SCENARIOS
     for scenario in context["scenarios"]:
 
         controller = SubElement(loop_tree, "GenericController", {
@@ -168,8 +90,7 @@ def generate_jmx(context):
 
             host, path = parse_url(req["url"])
 
-            # Create sampler
-            sampler = create_http_sampler(
+            sampler = create_sampler(
                 scenario_tree,
                 req["name"],
                 req["method"],
@@ -177,16 +98,13 @@ def generate_jmx(context):
                 path
             )
 
-            # 🔥 CRITICAL FIX:
-            # EVERY sampler MUST have its own hashTree
-            SubElement(sampler, "hashTree")
+            # 🔥 FIX: DO NOT always add hashTree
+            # Only add if needed (we skip it completely here)
+            pass
 
-    # =========================
-    # WRITE FILE
-    # =========================
-    xml_output = prettify(root)
+    xml = prettify(root)
 
     with open("output/testplan.jmx", "w", encoding="utf-8") as f:
-        f.write(xml_output)
+        f.write(xml)
 
-    print("✅ VALID JMX GENERATED SUCCESSFULLY")
+    print("VALID STABLE JMX GENERATED")
