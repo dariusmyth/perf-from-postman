@@ -1,0 +1,97 @@
+name: Manual Performance Run
+
+on:
+  workflow_dispatch:
+    inputs:
+
+      environment:
+        description: Environment
+        required: true
+        default: stage
+        type: choice
+        options:
+          - dev
+          - stage
+          - prod
+
+      users:
+        description: Override Users
+        required: false
+        default: ""
+
+      duration:
+        description: Override Duration
+        required: false
+        default: ""
+
+jobs:
+
+  execute-existing-jmx:
+
+    runs-on: ubuntu-latest
+
+    concurrency:
+      group: performance-tests
+      cancel-in-progress: false
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate JMX
+        run: |
+
+          if [ ! -f output/testplan.jmx ]
+          then
+              echo "No generated JMX found"
+              exit 1
+          fi
+
+      - name: Install JMeter
+        run: |
+
+          wget https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.6.3.tgz
+
+          tar -xzf apache-jmeter-5.6.3.tgz
+
+      - name: Create Timestamp
+        id: timestamp
+        run: |
+          echo "RUN_TS=$(date +%Y%m%d-%H%M%S)" >> $GITHUB_ENV
+
+      - name: Execute Test Plan
+        run: |
+
+          mkdir -p results/runs/${RUN_TS}
+
+          apache-jmeter-5.6.3/bin/jmeter \
+            -n \
+            -t output/testplan.jmx \
+            -l results/runs/${RUN_TS}/results.jtl \
+            -e \
+            -o results/runs/${RUN_TS}/html-report
+
+      - name: Generate Run Summary
+        run: |
+
+          python analytics/generate_summary.py \
+            results/runs/${RUN_TS}/results.jtl \
+            results/runs/${RUN_TS}/summary.json
+
+      - name: Rebuild Trend Report
+        run: |
+
+          python analytics/trend_builder.py
+
+      - name: Commit Results
+        run: |
+
+          git config user.name github-actions
+          git config user.email actions@github.com
+
+          git add results/
+
+          git commit -m "Manual Performance Run ${RUN_TS}" || true
+
+          git push

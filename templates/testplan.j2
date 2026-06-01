@@ -1,0 +1,60 @@
+<!-- templates/testplan.j2 -->
+
+<jmeterTestPlan>
+  <hashTree>
+
+    <TestPlan>
+      <stringProp name="TestPlan.comments">Auto Generated Plan</stringProp>
+    </TestPlan>
+
+    <hashTree>
+
+      <ThreadGroup>
+        <stringProp name="ThreadGroup.num_threads">{{ users }}</stringProp>
+        <stringProp name="ThreadGroup.duration">{{ duration }}</stringProp>
+      </ThreadGroup>
+
+      <hashTree>
+
+        {% for scenario in scenarios %}
+        <TransactionController testname="{{ scenario.name }}">
+        </TransactionController>
+
+        <hashTree>
+
+          {% for req in scenario.requests %}
+          <HTTPSamplerProxy testname="{{ req.name }}">
+            <stringProp name="HTTPSampler.method">{{ req.method }}</stringProp>
+            <stringProp name="HTTPSampler.path">{{ req.url }}</stringProp>
+          </HTTPSamplerProxy>
+
+          <hashTree>
+
+            {# ASSERTIONS #}
+            {% for a in req.assertions %}
+              {% if a.type == "response_code" %}
+              <ResponseAssertion>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <stringProp name="Assertion.pattern">{{ a.expected }}</stringProp>
+              </ResponseAssertion>
+              {% endif %}
+            {% endfor %}
+
+            {# EXTRACTORS #}
+            {% for c in req.correlations %}
+              <JSONPostProcessor>
+                <stringProp name="JSONPostProcessor.jsonPathExprs">{{ c.json_path }}</stringProp>
+                <stringProp name="JSONPostProcessor.names">{{ c.name }}</stringProp>
+              </JSONPostProcessor>
+            {% endfor %}
+
+          </hashTree>
+
+          {% endfor %}
+        </hashTree>
+        {% endfor %}
+
+      </hashTree>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

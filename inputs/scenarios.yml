@@ -1,0 +1,24 @@
+scenarios:
+  - name: CreateBooking
+    description: Create Booking
+    order: 1
+    requests:
+      - CreateToken
+      - CreateBooking
+  - name: Create Login token
+    description: Create login
+    order: 1
+    requests:
+      - CreateToken
+  - name: Check booking details
+    description: Create Booking
+    order: 1
+    requests:
+      - GetBookingIds
+      - getUser
+  - name: Check created booking details
+    description: Create Booking
+    order: 1
+    requests:
+      - CreateBooking
+      - GetBooking
