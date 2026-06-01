@@ -1,34 +1,56 @@
-# generator/postman_parser.py
 import json
 
-def parse_postman(path):
-    with open(path) as f:
-        data = json.load(f)
 
-    requests = {}
+def process_items(items, requests):
 
-    for item in data["item"]:
+    for item in items:
+
+        if "item" in item:
+            process_items(item["item"], requests)
+            continue
+
         name = item["name"]
-        req = item["request"]
+
+        request = item["request"]
 
         events = item.get("event", [])
 
         tests = []
-        pre_scripts = []
+        prerequests = []
 
-        for e in events:
-            if e["listen"] == "test":
-                tests.append(e["script"]["exec"])
-            if e["listen"] == "prerequest":
-                pre_scripts.append(e["script"]["exec"])
+        for event in events:
+
+            if event["listen"] == "test":
+                tests.append(
+                    event["script"]["exec"]
+                )
+
+            if event["listen"] == "prerequest":
+                prerequests.append(
+                    event["script"]["exec"]
+                )
 
         requests[name] = {
-            "method": req["method"],
-            "url": req["url"]["raw"],
-            "headers": req.get("header", []),
-            "body": req.get("body", {}),
+            "name": name,
+            "method": request["method"],
+            "url": request["url"]["raw"],
+            "headers": request.get("header", []),
+            "body": request.get("body", {}),
             "tests": tests,
-            "pre": pre_scripts
+            "pre": prerequests
         }
+
+
+def parse_postman(path):
+
+    with open(path, "r") as f:
+        collection = json.load(f)
+
+    requests = {}
+
+    process_items(
+        collection["item"],
+        requests
+    )
 
     return requests
