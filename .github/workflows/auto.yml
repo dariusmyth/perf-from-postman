@@ -1,10 +1,5 @@
 name: Full Performance Pipeline
 
-on:
-  push:
-    paths:
-      - "inputs/RestfulBooker.postman_collection.json"
-
 jobs:
   run:
     runs-on: ubuntu-latest
