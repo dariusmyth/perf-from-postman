@@ -2,7 +2,7 @@
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Postman Generated Test Plan" enabled="true">
-      <stringProp name="TestPlan.comments">Generated from Postman</stringProp>
+      <stringProp name="TestPlan.comments">Generated from Postman Collection</stringProp>
       <boolProp name="TestPlan.functional_mode">false</boolProp>
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
         <collectionProp name="Arguments.arguments"/>
@@ -32,8 +32,8 @@
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
               <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <hashTree/>
             </HTTPSamplerProxy>
-            <hashTree/>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="CreateBooking" enabled="true">
               <stringProp name="HTTPSampler.domain">restful-booker.herokuapp.com</stringProp>
               <stringProp name="HTTPSampler.port"/>
@@ -43,8 +43,8 @@
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
               <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <hashTree/>
             </HTTPSamplerProxy>
-            <hashTree/>
           </hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Create Login token" enabled="true"/>
           <hashTree>
@@ -57,8 +57,8 @@
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
               <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <hashTree/>
             </HTTPSamplerProxy>
-            <hashTree/>
           </hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Check booking details" enabled="true"/>
           <hashTree>
@@ -71,8 +71,8 @@
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
               <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <hashTree/>
             </HTTPSamplerProxy>
-            <hashTree/>
           </hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Check created booking details" enabled="true"/>
           <hashTree>
@@ -85,8 +85,8 @@
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
               <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <hashTree/>
             </HTTPSamplerProxy>
-            <hashTree/>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GetBooking" enabled="true">
               <stringProp name="HTTPSampler.domain">restful-booker.herokuapp.com</stringProp>
               <stringProp name="HTTPSampler.port"/>
@@ -96,8 +96,8 @@
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
               <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <hashTree/>
             </HTTPSamplerProxy>
-            <hashTree/>
           </hashTree>
         </hashTree>
       </hashTree>
