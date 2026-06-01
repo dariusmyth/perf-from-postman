@@ -6,12 +6,19 @@ from datetime import datetime
 
 def load_last_runs():
     runs_dir = "results/runs"
-    runs = sorted(os.listdir(runs_dir))[-5:]
+    if not os.path.exists(runs_dir):
+        return []
+
+    # Only include directories (ignore files like created.md)
+    runs = [d for d in sorted(os.listdir(runs_dir)) if os.path.isdir(os.path.join(runs_dir, d))]
+
+    # Keep the last 5 run directories
+    runs = runs[-5:]
 
     data = []
 
     for r in runs:
-        path = f"{runs_dir}/{r}/summary.json"
+        path = os.path.join(runs_dir, r, "summary.json")
 
         if os.path.exists(path):
             with open(path) as f:
@@ -30,9 +37,10 @@ def build_trend():
     }
 
     for r in runs:
-        trend["avg_response_time"].append(r["avg_rt"])
-        trend["error_rate"].append(r["errors"])
-        trend["timestamps"].append(r["timestamp"])
+        # guard access if keys missing in summary.json
+        trend["avg_response_time"].append(r.get("avg_rt"))
+        trend["error_rate"].append(r.get("errors"))
+        trend["timestamps"].append(r.get("timestamp"))
 
     return trend
 

@@ -32,19 +32,13 @@ jobs:
       - name: Generate JMX
         run: python generator/main.py
 
-      - name: Commit and push results
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-
-          git add results output || true
-          git commit -m "CI update" || echo "No changes"
-
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main
-
+      # Run JMeter and export TIMESTAMP for later steps
       - name: Run JMeter
         run: |
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          # export TIMESTAMP so subsequent steps can use the same value
+          echo "RUN_TS=${TIMESTAMP}" >> $GITHUB_ENV
+
           mkdir -p results/runs/$TIMESTAMP
 
           wget https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.6.3.tgz
@@ -58,32 +52,52 @@ jobs:
 
       - name: Generate Summary JSON
         run: |
-          python - <<EOF
+          python - <<'PY'
           import json, os
           from datetime import datetime
-
+          
           data = {
             "timestamp": str(datetime.now()),
             "avg_rt": 320,
             "errors": 0
           }
-
-          ts = sorted(os.listdir("results/runs"))[-1]
-          os.makedirs(f"results/runs/{ts}", exist_ok=True)
-
-          with open(f"results/runs/{ts}/summary.json", "w") as f:
+          
+          runs_dir = "results/runs"
+          # use the TIMESTAMP exported earlier; fallback to the latest directory if not set
+          ts = os.environ.get("RUN_TS")
+          if not ts:
+              # safe selection: only directories
+              runs = [d for d in sorted(os.listdir(runs_dir)) if os.path.isdir(os.path.join(runs_dir, d))]
+              ts = runs[-1] if runs else datetime.now().strftime("%Y%m%d-%H%M%S")
+          
+          os.makedirs(os.path.join(runs_dir, ts), exist_ok=True)
+          
+          with open(os.path.join(runs_dir, ts, "summary.json"), "w") as f:
               json.dump(data, f)
-          EOF
+          PY
 
       - name: Build Trend Report
         run: |
           python -c "from analytics.trend_builder import build_trend, save_trend; save_trend(build_trend())"
           python -c "from analytics.trend_html import generate_html; generate_html(build_trend())"
 
-      - name: Commit Everything
+      - name: Commit Everything (include JTL & report)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add output/ results/
+
+          # Use exported RUN_TS to add exactly the run artifacts
+          if [ -n "${RUN_TS}" ]; then
+            git add "results/runs/${RUN_TS}" || true
+          else
+            # fallback: add results and output
+            git add results output || true
+          fi
+
+          git add output || true
+
           git commit -m "Perf run + trend report" || echo "No changes"
-          git push
+          # push using token (ensure permissions are set)
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main
