@@ -1,102 +1,58 @@
 <?xml version="1.0" ?>
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
-    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Postman Generated Test Plan" enabled="true">
-      <stringProp name="TestPlan.comments">Generated from Postman Collection</stringProp>
-      <boolProp name="TestPlan.functional_mode">false</boolProp>
-      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-        <collectionProp name="Arguments.arguments"/>
-      </elementProp>
-      <stringProp name="TestPlan.user_define_classpath"/>
-    </TestPlan>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Postman Plan" enabled="true"/>
     <hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Users" enabled="true">
-        <stringProp name="ThreadGroup.num_threads">5</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
-        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-      </ThreadGroup>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Users" enabled="true"/>
       <hashTree>
-        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
-          <boolProp name="LoopController.continue_forever">false</boolProp>
-          <stringProp name="LoopController.loops">1</stringProp>
-        </LoopController>
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Loop" enabled="true"/>
         <hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="CreateBooking" enabled="true"/>
           <hashTree>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="CreateToken" enabled="true">
               <stringProp name="HTTPSampler.domain">restful-booker.herokuapp.com</stringProp>
-              <stringProp name="HTTPSampler.port"/>
               <stringProp name="HTTPSampler.protocol">https</stringProp>
               <stringProp name="HTTPSampler.path">/auth</stringProp>
               <stringProp name="HTTPSampler.method">POST</stringProp>
-              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-              <hashTree/>
             </HTTPSamplerProxy>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="CreateBooking" enabled="true">
               <stringProp name="HTTPSampler.domain">restful-booker.herokuapp.com</stringProp>
-              <stringProp name="HTTPSampler.port"/>
               <stringProp name="HTTPSampler.protocol">https</stringProp>
               <stringProp name="HTTPSampler.path">/booking</stringProp>
               <stringProp name="HTTPSampler.method">POST</stringProp>
-              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-              <hashTree/>
             </HTTPSamplerProxy>
           </hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Create Login token" enabled="true"/>
           <hashTree>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="CreateToken" enabled="true">
               <stringProp name="HTTPSampler.domain">restful-booker.herokuapp.com</stringProp>
-              <stringProp name="HTTPSampler.port"/>
               <stringProp name="HTTPSampler.protocol">https</stringProp>
               <stringProp name="HTTPSampler.path">/auth</stringProp>
               <stringProp name="HTTPSampler.method">POST</stringProp>
-              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-              <hashTree/>
             </HTTPSamplerProxy>
           </hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Check booking details" enabled="true"/>
           <hashTree>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GetBookingIds" enabled="true">
               <stringProp name="HTTPSampler.domain">restful-booker.herokuapp.com</stringProp>
-              <stringProp name="HTTPSampler.port"/>
               <stringProp name="HTTPSampler.protocol">https</stringProp>
               <stringProp name="HTTPSampler.path">/booking?checkin={{checkinDate}}&amp;checkout={{checkoutDate}}</stringProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
-              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-              <hashTree/>
             </HTTPSamplerProxy>
           </hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Check created booking details" enabled="true"/>
           <hashTree>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="CreateBooking" enabled="true">
               <stringProp name="HTTPSampler.domain">restful-booker.herokuapp.com</stringProp>
-              <stringProp name="HTTPSampler.port"/>
               <stringProp name="HTTPSampler.protocol">https</stringProp>
               <stringProp name="HTTPSampler.path">/booking</stringProp>
               <stringProp name="HTTPSampler.method">POST</stringProp>
-              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-              <hashTree/>
             </HTTPSamplerProxy>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GetBooking" enabled="true">
               <stringProp name="HTTPSampler.domain">restful-booker.herokuapp.com</stringProp>
-              <stringProp name="HTTPSampler.port"/>
               <stringProp name="HTTPSampler.protocol">https</stringProp>
               <stringProp name="HTTPSampler.path">/booking/{{createdBookingId}}</stringProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
-              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-              <hashTree/>
             </HTTPSamplerProxy>
           </hashTree>
         </hashTree>
