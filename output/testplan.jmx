@@ -14,12 +14,14 @@
               <stringProp name="HTTPSampler.protocol">https</stringProp>
               <stringProp name="HTTPSampler.path">/auth</stringProp>
               <stringProp name="HTTPSampler.method">POST</stringProp>
+              <hashTree/>
             </HTTPSamplerProxy>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="CreateBooking" enabled="true">
               <stringProp name="HTTPSampler.domain">restful-booker.herokuapp.com</stringProp>
               <stringProp name="HTTPSampler.protocol">https</stringProp>
               <stringProp name="HTTPSampler.path">/booking</stringProp>
               <stringProp name="HTTPSampler.method">POST</stringProp>
+              <hashTree/>
             </HTTPSamplerProxy>
           </hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Create Login token" enabled="true"/>
@@ -29,6 +31,7 @@
               <stringProp name="HTTPSampler.protocol">https</stringProp>
               <stringProp name="HTTPSampler.path">/auth</stringProp>
               <stringProp name="HTTPSampler.method">POST</stringProp>
+              <hashTree/>
             </HTTPSamplerProxy>
           </hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Check booking details" enabled="true"/>
@@ -38,6 +41,7 @@
               <stringProp name="HTTPSampler.protocol">https</stringProp>
               <stringProp name="HTTPSampler.path">/booking?checkin={{checkinDate}}&amp;checkout={{checkoutDate}}</stringProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
+              <hashTree/>
             </HTTPSamplerProxy>
           </hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Check created booking details" enabled="true"/>
@@ -47,12 +51,14 @@
               <stringProp name="HTTPSampler.protocol">https</stringProp>
               <stringProp name="HTTPSampler.path">/booking</stringProp>
               <stringProp name="HTTPSampler.method">POST</stringProp>
+              <hashTree/>
             </HTTPSamplerProxy>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GetBooking" enabled="true">
               <stringProp name="HTTPSampler.domain">restful-booker.herokuapp.com</stringProp>
               <stringProp name="HTTPSampler.protocol">https</stringProp>
               <stringProp name="HTTPSampler.path">/booking/{{createdBookingId}}</stringProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
+              <hashTree/>
             </HTTPSamplerProxy>
           </hashTree>
         </hashTree>
