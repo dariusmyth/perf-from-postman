@@ -1,15 +1,31 @@
 import os
 from xml.etree.ElementTree import Element, SubElement, tostring
 from xml.dom import minidom
+from urllib.parse import urlparse
 
 
 def prettify(elem):
-    rough_string = tostring(elem, 'utf-8')
-    reparsed = minidom.parseString(rough_string)
+    rough = tostring(elem, "utf-8")
+    reparsed = minidom.parseString(rough)
     return reparsed.toprettyxml(indent="  ")
 
 
-def add_httpsampler(parent, name, method, path):
+def parse_url(full_url):
+    """
+    Converts Postman URL → JMeter host + path
+    """
+    parsed = urlparse(full_url)
+
+    host = parsed.netloc
+    path = parsed.path
+
+    if parsed.query:
+        path += "?" + parsed.query
+
+    return host, path
+
+
+def add_http_sampler(parent, name, method, host, path):
 
     sampler = SubElement(parent, "HTTPSamplerProxy", {
         "guiclass": "HttpTestSampleGui",
@@ -19,12 +35,24 @@ def add_httpsampler(parent, name, method, path):
     })
 
     SubElement(sampler, "stringProp", {
-        "name": "HTTPSampler.method"
-    }).text = method
+        "name": "HTTPSampler.domain"
+    }).text = host
+
+    SubElement(sampler, "stringProp", {
+        "name": "HTTPSampler.port"
+    }).text = ""
+
+    SubElement(sampler, "stringProp", {
+        "name": "HTTPSampler.protocol"
+    }).text = "https"
 
     SubElement(sampler, "stringProp", {
         "name": "HTTPSampler.path"
     }).text = path
+
+    SubElement(sampler, "stringProp", {
+        "name": "HTTPSampler.method"
+    }).text = method
 
     return sampler
 
@@ -33,17 +61,17 @@ def generate_jmx(context):
 
     os.makedirs("output", exist_ok=True)
 
-    # Root
-    jmeter = Element("jmeterTestPlan", {
+    # ROOT
+    root = Element("jmeterTestPlan", {
         "version": "1.2",
         "properties": "5.0",
         "jmeter": "5.6.3"
     })
 
-    tree = SubElement(jmeter, "hashTree")
+    root_hash = SubElement(root, "hashTree")
 
     # TEST PLAN
-    test_plan = SubElement(tree, "TestPlan", {
+    test_plan = SubElement(root_hash, "TestPlan", {
         "guiclass": "TestPlanGui",
         "testclass": "TestPlan",
         "testname": "Postman Generated Test Plan",
@@ -52,9 +80,13 @@ def generate_jmx(context):
 
     SubElement(test_plan, "stringProp", {
         "name": "TestPlan.comments"
-    }).text = "Generated from Postman collection"
+    }).text = "Generated from Postman"
 
-    test_plan_tree = SubElement(tree, "hashTree")
+    SubElement(test_plan, "boolProp", {
+        "name": "TestPlan.functional_mode"
+    }).text = "false"
+
+    test_plan_tree = SubElement(root_hash, "hashTree")
 
     # THREAD GROUP
     thread_group = SubElement(test_plan_tree, "ThreadGroup", {
@@ -99,39 +131,34 @@ def generate_jmx(context):
     # REQUESTS FROM POSTMAN
     for scenario in context["scenarios"]:
 
-        # Scenario controller
-        controller = SubElement(loop_tree, "GenericController", {
+        scenario_controller = SubElement(loop_tree, "GenericController", {
             "guiclass": "LogicControllerGui",
             "testclass": "GenericController",
             "testname": scenario["name"],
             "enabled": "true"
         })
 
-        controller_tree = SubElement(loop_tree, "hashTree")
+        scenario_tree = SubElement(loop_tree, "hashTree")
 
         for req in scenario["requests"]:
 
-            # Convert Postman URL → path only
-            url = req["url"]
+            host, path = parse_url(req["url"])
 
-            if "http" in url:
-                path = "/" + "/".join(url.split("/")[3:])
-            else:
-                path = url
-
-            sampler = add_httpsampler(
-                controller_tree,
+            add_http_sampler(
+                scenario_tree,
                 req["name"],
                 req["method"],
+                host,
                 path
             )
 
-            SubElement(controller_tree, "hashTree")
+            # IMPORTANT: hashTree for sampler (required by JMeter)
+            SubElement(scenario_tree, "hashTree")
 
-    # OUTPUT
-    xml_str = prettify(jmeter)
+    # WRITE FILE
+    xml_output = prettify(root)
 
     with open("output/testplan.jmx", "w", encoding="utf-8") as f:
-        f.write(xml_str)
+        f.write(xml_output)
 
-    print("VALID JMX generated at output/testplan.jmx")
+    print("✅ Valid JMeter JMX generated at output/testplan.jmx")
