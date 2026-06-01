@@ -11,10 +11,13 @@ def prettify(elem):
 
 
 def parse_url(url):
-    parsed = urlparse(url)
-    return parsed.netloc, parsed.path + (("?" + parsed.query) if parsed.query else "")
+    p = urlparse(url)
+    return p.netloc, p.path + (("?" + p.query) if p.query else "")
 
 
+# ------------------------
+# CREATE SAMPLER ONLY
+# ------------------------
 def create_sampler(parent, name, method, host, path):
 
     sampler = SubElement(parent, "HTTPSamplerProxy", {
@@ -32,6 +35,9 @@ def create_sampler(parent, name, method, host, path):
     return sampler
 
 
+# ------------------------
+# MAIN
+# ------------------------
 def generate_jmx(context):
 
     os.makedirs("output", exist_ok=True)
@@ -44,7 +50,6 @@ def generate_jmx(context):
 
     root_hash = SubElement(root, "hashTree")
 
-    # TEST PLAN
     test_plan = SubElement(root_hash, "TestPlan", {
         "guiclass": "TestPlanGui",
         "testclass": "TestPlan",
@@ -54,7 +59,6 @@ def generate_jmx(context):
 
     test_plan_tree = SubElement(root_hash, "hashTree")
 
-    # THREAD GROUP
     thread_group = SubElement(test_plan_tree, "ThreadGroup", {
         "guiclass": "ThreadGroupGui",
         "testclass": "ThreadGroup",
@@ -64,7 +68,6 @@ def generate_jmx(context):
 
     thread_group_tree = SubElement(test_plan_tree, "hashTree")
 
-    # LOOP CONTROLLER
     loop_controller = SubElement(thread_group_tree, "LoopController", {
         "guiclass": "LoopControlPanel",
         "testclass": "LoopController",
@@ -74,7 +77,9 @@ def generate_jmx(context):
 
     loop_tree = SubElement(thread_group_tree, "hashTree")
 
-    # SCENARIOS
+    # =========================
+    # FIXED REQUEST STRUCTURE
+    # =========================
     for scenario in context["scenarios"]:
 
         controller = SubElement(loop_tree, "GenericController", {
@@ -98,13 +103,13 @@ def generate_jmx(context):
                 path
             )
 
-            # 🔥 FIX: DO NOT always add hashTree
-            # Only add if needed (we skip it completely here)
-            pass
+            # 🔥 CRITICAL FIX:
+            # hashTree MUST come IMMEDIATELY after sampler
+            SubElement(sampler, "hashTree")
 
     xml = prettify(root)
 
     with open("output/testplan.jmx", "w", encoding="utf-8") as f:
         f.write(xml)
 
-    print("VALID STABLE JMX GENERATED")
+    print("VALID JMX GENERATED")
